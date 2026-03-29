@@ -146,7 +146,7 @@ st.set_page_config(
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("🔒 Multi-File Integrity Monitoring System")
-st.markdown("**RBCS 7416 — Information Security** | Hemstone Kerry Ochieng | 22YAD106792")
+st.markdown("Information Security | Hemstone Kerry")
 st.divider()
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
