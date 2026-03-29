@@ -1,9 +1,8 @@
 # 🔒 Multi-File Integrity Monitoring System (FIMS)
 ### Using SHA-256 Hashing
 
-**Student:** Hemstone Kerry Ochieng  
-**Adm No:** 22YAD106792  
-**Course:** RBCS 7416 — Information Security  
+**By:** Hemstone Kerry 
+ 
 
 ---
 
