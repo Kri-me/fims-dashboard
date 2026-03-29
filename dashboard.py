@@ -209,7 +209,7 @@ st.set_page_config(
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("🔒 Multi-File Integrity Monitoring System")
-st.markdown("**Hemstone Kerry Ochieng**")
+st.markdown("**Hemstone Kerry**")
 
 if not IS_LOCAL:
     st.info("🌐 **Cloud Demo Mode** — Running on Streamlit Cloud with sample data to demonstrate system functionality.")
