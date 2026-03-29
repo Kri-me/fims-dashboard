@@ -1,28 +1,21 @@
 """
-============================================================
-  FIMS — Streamlit Dashboard
-  Multi-File Integrity Monitoring System
-------------------------------------------------------------
-  Student : Hemstone Kerry Ochieng
-  Adm No  : 22YAD106792
-  Course  : RBCS 7416 — Information Security
-============================================================
-  Run locally : streamlit run dashboard.py
-  Deployed at : Streamlit Cloud
+Multi-File Integrity Monitoring System (FIMS)
+Streamlit Dashboard
 """
 
 import os
+import sys
 import json
 import hashlib
 import streamlit as st
 from datetime import datetime
 
-# ── Detect environment ────────────────────────────────────────────────────────
-LOCAL_BASE = r"C:\Users\harie\Desktop\FIMS"
-IS_LOCAL   = os.path.exists(LOCAL_BASE)
+# ── Environment detection ─────────────────────────────────────────────────────
+# Streamlit Cloud runs on Linux; local machine is Windows
+IS_LOCAL = sys.platform == "win32"
 
 if IS_LOCAL:
-    BASE_DIR      = LOCAL_BASE
+    BASE_DIR      = r"C:\Users\harie\Desktop\FIMS"
     MONITORED_DIR = os.path.join(BASE_DIR, "monitored_files")
     BASELINE_FILE = os.path.join(BASE_DIR, "hashes", "baseline.json")
     REPORT_JSON   = os.path.join(BASE_DIR, "reports", "scan_report.json")
@@ -59,7 +52,7 @@ DEMO_REPORT = {
             {
                 "file":     "sample1.txt",
                 "old_hash": "a3f1e2c4b5d67890abcdef1234567890abcdef1234567890abcdef1234567890",
-                "new_hash": "99zz1122aabbccddeeff00112233445566778899aabbccddeeff001122334455"
+                "new_hash": "99ff1122aabbccddeeff00112233445566778899aabbccddeeff001122334455"
             }
         ],
         "deleted": [
@@ -78,7 +71,7 @@ DEMO_REPORT = {
 }
 
 
-# ── Utility ───────────────────────────────────────────────────────────────────
+# ── Utilities ─────────────────────────────────────────────────────────────────
 def compute_sha256(filepath):
     sha256 = hashlib.sha256()
     try:
@@ -91,7 +84,7 @@ def compute_sha256(filepath):
 
 
 def scan_directory(directory):
-    if not directory or not os.path.exists(directory):
+    if not directory or not os.path.isdir(directory):
         return {}
     hashes = {}
     for filename in sorted(os.listdir(directory)):
@@ -104,7 +97,7 @@ def scan_directory(directory):
 def load_baseline():
     if not IS_LOCAL:
         return DEMO_BASELINE
-    if not os.path.exists(BASELINE_FILE):
+    if not BASELINE_FILE or not os.path.exists(BASELINE_FILE):
         return None
     with open(BASELINE_FILE, "r") as f:
         return json.load(f)
@@ -123,7 +116,7 @@ def save_baseline(hashes):
 def load_report():
     if not IS_LOCAL:
         return DEMO_REPORT
-    if not os.path.exists(REPORT_JSON) or os.path.getsize(REPORT_JSON) == 0:
+    if not REPORT_JSON or not os.path.exists(REPORT_JSON) or os.path.getsize(REPORT_JSON) == 0:
         return None
     with open(REPORT_JSON, "r") as f:
         return json.load(f)
@@ -131,6 +124,8 @@ def load_report():
 
 def run_integrity_check():
     baseline_data   = load_baseline()
+    if not baseline_data:
+        return None
     baseline_hashes = baseline_data["files"]
     current_hashes  = scan_directory(MONITORED_DIR)
     scan_time       = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -214,10 +209,10 @@ st.set_page_config(
 
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("🔒 Multi-File Integrity Monitoring System")
-st.markdown("**RBCS 7416 — Information Security** | Hemstone Kerry Ochieng | 22YAD106792")
+st.markdown("**Hemstone Kerry Ochieng**")
 
 if not IS_LOCAL:
-    st.info("🌐 **Cloud Demo Mode** — This dashboard is running on Streamlit Cloud with sample data to demonstrate system functionality.")
+    st.info("🌐 **Cloud Demo Mode** — Running on Streamlit Cloud with sample data to demonstrate system functionality.")
 
 st.divider()
 
@@ -233,13 +228,13 @@ if IS_LOCAL:
     st.sidebar.code(MONITORED_DIR)
 else:
     st.sidebar.markdown("Running in **Cloud Demo Mode.**")
-    st.sidebar.markdown("To run the full live system, clone the repo and run locally:")
+    st.sidebar.markdown("To run the full live system, clone this repo and run locally:")
     st.sidebar.code("streamlit run dashboard.py")
     run_baseline = False
     run_check    = False
 
 # ── Phase 1: Run Baseline ─────────────────────────────────────────────────────
-if run_baseline:
+if IS_LOCAL and run_baseline:
     with st.spinner("Scanning directory and generating hashes..."):
         hashes = scan_directory(MONITORED_DIR)
         data   = save_baseline(hashes)
@@ -262,14 +257,15 @@ else:
 st.divider()
 
 # ── Phase 3: Run Check ────────────────────────────────────────────────────────
-if run_check:
+if IS_LOCAL and run_check:
     with st.spinner("Running integrity check..."):
         report = run_integrity_check()
-    total = report["summary"]["total_changes"]
-    if total == 0:
-        st.success("✅ All files are INTACT. No changes detected.")
-    else:
-        st.error(f"⚠️ {total} change(s) detected!")
+    if report:
+        total = report["summary"]["total_changes"]
+        if total == 0:
+            st.success("✅ All files are INTACT. No changes detected.")
+        else:
+            st.error(f"⚠️ {total} change(s) detected!")
 
 # ── Report Display ────────────────────────────────────────────────────────────
 st.subheader("📊 Integrity Check Report")
