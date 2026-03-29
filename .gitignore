@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local FIMS data (not needed in repo)
+hashes/
+reports/
+monitored_files/
+
+# OS
+.DS_Store
+Thumbs.db
